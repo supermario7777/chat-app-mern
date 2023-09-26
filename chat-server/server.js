@@ -62,18 +62,25 @@ io.on( "connection", (socket) =>
     socket.on( "typing", ( room ) => socket.in( room ).emit( "typing" ) );
     socket.on( "stop typing", ( room ) => socket.in( room ).emit( "stop typing" ) );
     
-    socket.on( 'new message', (newMessageReceived) =>
+    socket.on( 'new message', ( newMessageReceived ) =>
     {
         var chat = newMessageReceived.chat;
 
         if ( !chat.users ) return console.log( "chat.users not defined" );
 
-        chat.users.forEach(user => {
+        chat.users.forEach( user =>
+        {
             if ( user._id == newMessageReceived.sender._id ) {
-                return; 
+                return;
             }
 
             socket.in( user._id ).emit( "message received", newMessageReceived );
-        });
+        } );
+    } );
+
+    socket.off( "setup", () =>
+    {
+        console.log( "User disconnected" );
+        socket.leave(userData._id)
     })
 })
